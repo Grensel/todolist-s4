@@ -1,4 +1,4 @@
-import { DomainTask } from "./../api/tasksApi.types"
+import { DomainTask, DomainTaskSchema } from "./../api/tasksApi.types"
 import { createTodolistTC, deleteTodolistTC } from "./todolists-slice"
 import { createAppSlice } from "@/common/utils/createAppSlice"
 import { tasksApi } from "../api/tasksApi"
@@ -20,8 +20,9 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.getTasks(todolistId)
+          const tasks = DomainTaskSchema.array().parse(res.data.items)
           dispatch(setAppStatusAC({ status: "succeede" }))
-          return { todolistId, tasks: res.data.items }
+          return { todolistId, tasks }
         } catch (error: any) {
           handleServerNetworkError(error, dispatch)
           return rejectWithValue(null)
