@@ -12,4 +12,4 @@ export type BaseResponse<T = {}> = {
   fieldsErrors: FieldError[]
 }
 
-export type RequestStatus = "idle" | "loading" | "succeede" | "failed"
+export type RequestStatus = "idle" | "loading" | "succeeded" | "failed"

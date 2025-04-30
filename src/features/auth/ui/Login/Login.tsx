@@ -1,21 +1,24 @@
 import { selectThemeMode } from "@/app/app-slice"
-import { useAppSelector } from "@/common/hooks"
+import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import FormControl from '@mui/material/FormControl'
-import FormGroup from '@mui/material/FormGroup'
-import FormLabel from '@mui/material/FormLabel'
-import Grid from "@mui/material/Grid2"
-import TextField from '@mui/material/TextField'
-import { Controller, SubmitHandler, useForm } from "react-hook-form"
-import styles from "./Login.module.css"
+import { type Inputs, loginSchema } from "@/features/auth/lib/schemas"
+import { loginTC } from "@/features/auth/model/auth-slice"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Inputs, loginSchema } from "../../lib/schemas"
+import Button from "@mui/material/Button"
+import Checkbox from "@mui/material/Checkbox"
+import FormControl from "@mui/material/FormControl"
 import FormControlLabel from "@mui/material/FormControlLabel"
+import FormGroup from "@mui/material/FormGroup"
+import FormLabel from "@mui/material/FormLabel"
+import Grid from "@mui/material/Grid2"
+import TextField from "@mui/material/TextField"
+import { Controller, type SubmitHandler, useForm } from "react-hook-form"
+import styles from "./Login.module.css"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
+
+  const dispatch = useAppDispatch()
 
   const theme = getTheme(themeMode)
 
@@ -27,16 +30,16 @@ export const Login = () => {
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '', rememberMe: false }
+    defaultValues: { email: "", password: "", rememberMe: false },
   })
 
-  const onSubmit: SubmitHandler<Inputs> = data => {
-    console.log(data)
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    dispatch(loginTC(data))
     reset()
   }
 
   return (
-    <Grid container justifyContent={'center'}>
+    <Grid container justifyContent={"center"}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormControl>
           <FormLabel>

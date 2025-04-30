@@ -1,12 +1,11 @@
-import { DomainTask, DomainTaskSchema } from "./../api/tasksApi.types"
-import { createTodolistTC, deleteTodolistTC } from "./todolists-slice"
-import { createAppSlice } from "@/common/utils/createAppSlice"
-import { tasksApi } from "../api/tasksApi"
-import { UpdateTaskModel } from "../api/tasksApi.types"
-import { RootState } from "@/app/store"
 import { setAppStatusAC } from "@/app/app-slice"
+import type { RootState } from "@/app/store"
 import { ResultCode } from "@/common/enums"
-import { handleServerAppError, handleServerNetworkError } from "@/common/utils"
+import { createAppSlice, handleServerAppError, handleServerNetworkError } from "@/common/utils"
+import { tasksApi } from "@/features/todolists/api/tasksApi"
+import { type DomainTask, DomainTaskSchema, type UpdateTaskModel } from "@/features/todolists/api/tasksApi.types"
+import { createTodolistTC, deleteTodolistTC } from "./todolists-slice"
+import { clearDataAC } from "@/common/actions"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -14,14 +13,26 @@ export const tasksSlice = createAppSlice({
   selectors: {
     selectTasks: (state) => state,
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createTodolistTC.fulfilled, (state, action) => {
+        state[action.payload.todolist.id] = []
+      })
+      .addCase(deleteTodolistTC.fulfilled, (state, action) => {
+        delete state[action.payload.id]
+      })
+      .addCase(clearDataAC, () => {
+        return {}
+      })
+  },
   reducers: (create) => ({
-    fetchTaskTC: create.asyncThunk(
+    fetchTasksTC: create.asyncThunk(
       async (todolistId: string, { dispatch, rejectWithValue }) => {
         try {
           dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.getTasks(todolistId)
           const tasks = DomainTaskSchema.array().parse(res.data.items)
-          dispatch(setAppStatusAC({ status: "succeede" }))
+          dispatch(setAppStatusAC({ status: "succeeded" }))
           return { todolistId, tasks }
         } catch (error: any) {
           handleServerNetworkError(error, dispatch)
@@ -40,7 +51,7 @@ export const tasksSlice = createAppSlice({
           dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.createTask(payload)
           if (res.data.resultCode === ResultCode.Success) {
-            dispatch(setAppStatusAC({ status: "succeede" }))
+            dispatch(setAppStatusAC({ status: "succeeded" }))
             return { task: res.data.data.item }
           } else {
             handleServerAppError(res.data, dispatch)
@@ -63,13 +74,13 @@ export const tasksSlice = createAppSlice({
           dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.deleteTask(payload)
           if (res.data.resultCode === ResultCode.Success) {
-            dispatch(setAppStatusAC({ status: "succeede" }))
+            dispatch(setAppStatusAC({ status: "succeeded" }))
             return payload
           } else {
             handleServerAppError(res.data, dispatch)
             return rejectWithValue(null)
           }
-        } catch (error) {
+        } catch (error: any) {
           handleServerNetworkError(error, dispatch)
           return rejectWithValue(null)
         }
@@ -100,18 +111,19 @@ export const tasksSlice = createAppSlice({
 
         const model: UpdateTaskModel = {
           description: task.description,
-          title: domainModel.title !== undefined ? domainModel.title : task.title,
+          title: task.title,
           priority: task.priority,
           startDate: task.startDate,
           deadline: task.deadline,
-          status: domainModel.status !== undefined ? domainModel.status : task.status,
+          status: task.status,
+          ...domainModel,
         }
 
         try {
           dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.updateTask({ todolistId, taskId, model })
           if (res.data.resultCode === ResultCode.Success) {
-            dispatch(setAppStatusAC({ status: "succeede" }))
+            dispatch(setAppStatusAC({ status: "succeeded" }))
             return { task: res.data.data.item }
           } else {
             handleServerAppError(res.data, dispatch)
@@ -124,34 +136,25 @@ export const tasksSlice = createAppSlice({
       },
       {
         fulfilled: (state, action) => {
-          const task = state[action.payload.task.todoListId].find((task) => task.id === action.payload.task.id)
-          if (task) {
-            if (action.payload.task.title !== undefined) {
-              task.title = action.payload.task.title
-            }
-            if (action.payload.task.status !== undefined) {
-              task.status = action.payload.task.status
-            }
+          const allTodolistTasks = state[action.payload.task.todoListId]
+          const taskIndex = allTodolistTasks.findIndex((task) => task.id === action.payload.task.id)
+          if (taskIndex !== -1) {
+            allTodolistTasks[taskIndex] = action.payload.task
           }
         },
       },
     ),
+    changeTaskTitleAC: create.reducer<{ todolistId: string; taskId: string; title: string }>((state, action) => {
+      const task = state[action.payload.todolistId].find((task) => task.id === action.payload.taskId)
+      if (task) {
+        task.title = action.payload.title
+      }
+    }),
   }),
-  extraReducers: (builder) => {
-    builder
-      .addCase(createTodolistTC.fulfilled, (state, action) => {
-        state[action.payload.todolist.id] = []
-      })
-      .addCase(deleteTodolistTC.fulfilled, (state, action) => {
-        delete state[action.payload.id]
-      })
-  },
 })
 
-export const { fetchTaskTC, createTaskTC, deleteTaskTC, updateTaskTC } = tasksSlice.actions
-
-export const tasksReducer = tasksSlice.reducer
-
 export const { selectTasks } = tasksSlice.selectors
+export const { fetchTasksTC, createTaskTC, deleteTaskTC, updateTaskTC } = tasksSlice.actions
+export const tasksReducer = tasksSlice.reducer
 
 export type TasksState = Record<string, DomainTask[]>
