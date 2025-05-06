@@ -3,7 +3,7 @@ import { DomainTodolist } from "@/features/todolists/model/todolists-slice"
 import DeleteIcon from "@mui/icons-material/Delete"
 import IconButton from "@mui/material/IconButton"
 import styles from "./TodolistTitle.module.css"
-import { useChangeTodolistTitleMutation, useDeleteTodolistMutation } from "@/features/todolists/api/todolistsApi"
+import { useUpdateTodolistTitleMutation, useDeleteTodolistMutation } from "@/features/todolists/api/todolistsApi"
 
 type Props = {
   todolist: DomainTodolist
@@ -13,7 +13,7 @@ export const TodolistTitle = ({ todolist }: Props) => {
   const { id, title, entityStatus } = todolist
 
   const [deleteTodolist] = useDeleteTodolistMutation()
-  const [changeTodolistTitle] = useChangeTodolistTitleMutation()
+  const [changeTodolistTitle] = useUpdateTodolistTitleMutation()
   const deleteTodolisthandler = () => {
     deleteTodolist(id)
   }

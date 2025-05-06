@@ -14,7 +14,7 @@ export const todolistsApi = baseApi.injectEndpoints({
     }),
     createTodolist: build.mutation<BaseResponse<{ item: Todolist }>, string>({
       query: (title) => ({
-        url: "/todo-lists",
+        url: "todo-lists",
         method: "POST",
         body: { title },
       }),
@@ -22,15 +22,15 @@ export const todolistsApi = baseApi.injectEndpoints({
     }),
     deleteTodolist: build.mutation<BaseResponse, string>({
       query: (id) => ({
-        url: `/todo-lists/${id}`,
+        url: `todo-lists/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Todolist"],
     }),
-    changeTodolistTitle: build.mutation<BaseResponse, { id: string; title: string }>({
+    updateTodolistTitle: build.mutation<BaseResponse, { id: string; title: string }>({
       query: ({ id, title }) => ({
-        url: `/todo-list${id}`,
-        method: "POST",
+        url: `todo-lists/${id}`,
+        method: "PUT",
         body: { title },
       }),
       invalidatesTags: ["Todolist"],
@@ -42,7 +42,7 @@ export const {
   useGetTodolistsQuery,
   useCreateTodolistMutation,
   useDeleteTodolistMutation,
-  useChangeTodolistTitleMutation,
+  useUpdateTodolistTitleMutation,
 } = todolistsApi
 
 export const _todolistsApi = {
