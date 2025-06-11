@@ -1,5 +1,5 @@
 import axios from "axios"
-import { AUTH_TOKEN } from "../contacts/index.ts"
+import { AUTH_TOKEN } from "../constants/index.ts"
 
 export const instance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,

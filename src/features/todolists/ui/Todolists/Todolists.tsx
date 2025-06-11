@@ -2,11 +2,24 @@ import { TodolistItem } from "./TodolistItem/TodolistItem"
 import Grid from "@mui/material/Grid2"
 import Paper from "@mui/material/Paper"
 import { useGetTodolistsQuery } from "../../api/todolistsApi"
+import Box from "@mui/material/Box"
+import { containerSx } from "@/common/styles"
+import { TodolistSkeleton } from "./TodolistSkeleton/TodolistSkeleton"
 
 export const Todolists = () => {
 
-  const { data: todolists } = useGetTodolistsQuery()
-
+  const { data: todolists, isLoading } = useGetTodolistsQuery()
+  if (isLoading) {
+    return (
+      <Box sx={containerSx} style={{ gap: "32px" }}>
+        {Array(3)
+          .fill(null)
+          .map((_, id) => (
+            <TodolistSkeleton key={id} />
+          ))}
+      </Box>
+    )
+  }
   return (
     <>
       {todolists?.map((todolist) => (
