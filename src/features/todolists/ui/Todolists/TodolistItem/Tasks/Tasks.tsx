@@ -4,15 +4,19 @@ import { TaskStatus } from "@/common/enums"
 import { useGetTasksQuery } from "@/features/todolists/api/tasksApi"
 import { TasksSkeleton } from "./TasksSkeleton/TasksSkeleton"
 import { DomainTodolist } from "@/features/todolists/lib/types"
+import { useState } from "react"
+import { TasksPagination } from "./TasksPagination/TasksPagination"
 
 type Props = {
   todolist: DomainTodolist
 }
 
 export const Tasks = ({ todolist }: Props) => {
-  const { id, filter, entityStatus } = todolist
+  const { id, filter } = todolist
 
-  const { data, isLoading } = useGetTasksQuery(id)
+  const [page, setPage] = useState(1)
+
+  const { data, isLoading } = useGetTasksQuery({ todolistId: id, params: { page }, })
 
   let filteredTasks = data?.items
   if (filter === "active") {
@@ -31,11 +35,14 @@ export const Tasks = ({ todolist }: Props) => {
       {filteredTasks?.length === 0 ? (
         <p>Тасок нет</p>
       ) : (
-        <List>
-          {filteredTasks?.map((task) => (
-            <TaskItem key={task.id} task={task} todolist={todolist} disabled={entityStatus === 'loading'} />
-          ))}
-        </List>
+        <>
+          <List>
+            {filteredTasks?.map((task) => (
+              <TaskItem key={task.id} task={task} todolist={todolist} />
+            ))}
+          </List>
+          <TasksPagination totalCount={data?.totalCount || 0} page={page} setPage={setPage} />
+        </>
       )}
     </>
   )

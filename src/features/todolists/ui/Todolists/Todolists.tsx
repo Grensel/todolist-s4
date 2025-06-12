@@ -8,7 +8,10 @@ import { TodolistSkeleton } from "./TodolistSkeleton/TodolistSkeleton"
 
 export const Todolists = () => {
 
-  const { data: todolists, isLoading } = useGetTodolistsQuery()
+  const { data: todolists, isLoading } = useGetTodolistsQuery(undefined, {
+    pollingInterval: 3000,
+    skipPollingIfUnfocused: true,
+  })
   if (isLoading) {
     return (
       <Box sx={containerSx} style={{ gap: "32px" }}>

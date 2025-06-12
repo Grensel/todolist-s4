@@ -6,6 +6,8 @@ export const baseApi = createApi({
   reducerPath: "todolistsApi",
   tagTypes: ["Todolist", "Task"],
   baseQuery: async (args, api, extraOptions) => {
+    await new Promise((res) => setTimeout(res, 1000)) // Задержка для запросов на весь todolist
+
     const result = await fetchBaseQuery({
       baseUrl: import.meta.env.VITE_BASE_URL,
       prepareHeaders: (headers) => {
@@ -19,4 +21,6 @@ export const baseApi = createApi({
     return result
   },
   endpoints: () => ({}),
+  keepUnusedDataFor: 3600,
+  refetchOnReconnect: true,
 })
