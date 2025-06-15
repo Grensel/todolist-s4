@@ -1,13 +1,13 @@
 import type { BaseResponse } from "@/common/types"
-import type { LoginArgs } from "./authApi.types"
+import type { LoginArgs, LoginResponse, MeResponse } from "./authApi.types"
 import { baseApi } from "@/app/baseApi"
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    me: build.query<BaseResponse<{ id: number; email: string; login: string }>, void>({
+    me: build.query<BaseResponse<MeResponse>, void>({
       query: () => "auth/me",
     }),
-    login: build.mutation<BaseResponse<{ userId: number; token: string }>, LoginArgs>({
+    login: build.mutation<BaseResponse<LoginResponse>, LoginArgs>({
       query: (body) => ({
         url: "auth/login",
         method: "POST",

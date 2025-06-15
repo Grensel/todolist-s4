@@ -10,7 +10,7 @@ export const tasksApi = baseApi.injectEndpoints({
         url: `todo-lists/${todolistId}/tasks`,
         params: { ...params, count: PAGE_SIZE },
       }),
-      providesTags: (res, err, { todolistId }) => [{ type: "Task", id: todolistId }],
+      providesTags: (_res, _err, { todolistId }) => [{ type: "Task", id: todolistId }],
     }),
     addTask: build.mutation<BaseResponse<{ item: DomainTask }>, { todolistId: string; title: string }>({
       query: ({ todolistId, title }) => ({

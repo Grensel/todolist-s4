@@ -1,4 +1,3 @@
-import { useRemoveTaskMutation } from "@/features/todolists/api/tasksApi"
 import type { BaseResponse } from "@/common/types"
 import type { Todolist } from "./todolistsApi.types"
 import { baseApi } from "@/app/baseApi"

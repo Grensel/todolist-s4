@@ -14,6 +14,9 @@ export const TasksPagination = ({ totalCount, page, setPage }: Props) => {
   const changePage = (_: ChangeEvent<unknown>, page: number) => {
     setPage(page)
   }
+  if (totalCount <= PAGE_SIZE) {
+    return null
+  }
 
   return (
     <>
